@@ -155,7 +155,7 @@ h1 {
 </head>
 
 
-<title> Lab Inventory</title>
+<title> Lab Inventory Dev</title>
 
 <body class="sdx" onload="UpdateActions()">
 
