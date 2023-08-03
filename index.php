@@ -249,18 +249,16 @@ if ($conn->connect_error) {
       
       for ($element = 0; $element < $numElements; $element++){
         ?> 
-        <sdx-input 
-          id="<?php echo "structid_".$table_struct[$element]['Name']?>" 
-          label="<?php echo $table_struct[$element]['Name']?>"
-          placeholder="<?php echo $table_struct[$element]['Default']?>"
-          <?php
+          <?php 
+          echo "<sdx-input ";
+          echo "id=\"structid_".$table_struct[$element]['Name']."\"";
+          echo "label = \"".$table_struct[$element]['Name']."\""; 
+          echo "placeholder=\"".$table_struct[$element]['Default']."\"";
             //check for larger text fields
             if ( $table_struct[$element]['StrLength']>= 50) {
               echo "type= \"textarea\"";
-            }
-            
-            //check for non-changable fields, disable & hide
-            
+            }           
+            //check for non-changable fields, disable & hide            
             if ( $table_struct[$element]['Extra'] != '') {
               echo "disabled";
               echo " ";
