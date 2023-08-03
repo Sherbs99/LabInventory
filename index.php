@@ -1334,8 +1334,23 @@ function edit_save() {
     row_obj[keys[i]] = document.getElementById("structid_"+keys[i]).value;
     //console.log (keys[i]);
   }
-  console.log ("New Row Object = ");
-  console.log (row_obj);
+  
+  var new_json_string = JSON.stringify(row_obj);
+  console.log (new_json_string);
+  
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", "update_db.php");
+  xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+  
+  xhr.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      console.log("OnReadyStateChange Successfull " );
+      console.log(this.response);
+    }
+  }
+
+  xhr.send(new_json_string);
+
   
 }
 
