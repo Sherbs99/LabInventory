@@ -243,8 +243,7 @@ if ($conn->connect_error) {
   <div id="tbl_cols"> 
     <?php 
       // generate Input Mask with all DB Fields
-      $table_struct=(getColumnNames("pdu_plugs")); 
-      
+      $table_struct=(getColumnNames("pdu_plugs"));      
       $numElements = count($table_struct);
       
       for ($element = 0; $element < $numElements; $element++){
@@ -265,7 +264,6 @@ if ($conn->connect_error) {
         echo "> ";
         echo "</sdx-input> ";        
       }
-
       
     ?>
     
@@ -1323,8 +1321,22 @@ function editRecord(row_json) {
 }
 
 function edit_save() {
+
   document.getElementById("editMask").hidden = true;
   document.getElementById("allcontent").hidden = false;
+  
+  let rowNum = document.getElementById("structid_id").value;
+  var json_string = document.getElementById("tbl_rowjson"+rowNum).innerHTML.trim(); // get current json string
+  //console.log (json_string);
+  const row_obj = JSON.parse(json_string); //convert to JS Object
+  const keys = Object.keys(row_obj); //extract Keys
+  for (let i = 0; i < keys.length; i++) {
+    row_obj[keys[i]] = document.getElementById("structid_"+keys[i]).value;
+    //console.log (keys[i]);
+  }
+  console.log ("New Row Object = ");
+  console.log (row_obj);
+  
 }
 
 function edit_cancel() {
