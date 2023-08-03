@@ -248,8 +248,6 @@ if ($conn->connect_error) {
       $numElements = count($table_struct);
       
       for ($element = 0; $element < $numElements; $element++){
-        ?> 
-          <?php 
           echo "<sdx-input ";
           echo "id=\"structid_".$table_struct[$element]['Name']."\"";
           echo "label = \"".$table_struct[$element]['Name']."\""; 
@@ -264,11 +262,8 @@ if ($conn->connect_error) {
               echo " ";
               echo "hidden";
             }
-          ?>
-        >  
-        </sdx-input>  
-        <?php
-        
+        echo "> ";
+        echo "</sdx-input> ";        
       }
 
       
