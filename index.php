@@ -1336,7 +1336,7 @@ function edit_save() {
   }
   
   var new_json_string = JSON.stringify(row_obj);
-  console.log (new_json_string);
+  //console.log (new_json_string);
   
   const xhr = new XMLHttpRequest();
   xhr.open("POST", "update_db.php");
@@ -1344,11 +1344,10 @@ function edit_save() {
   
   xhr.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
-      console.log("OnReadyStateChange Successfull " );
+      //console.log("OnReadyStateChange Successful, Response = " );
       console.log(this.response);
     }
   }
-
   xhr.send(new_json_string);
 
   
