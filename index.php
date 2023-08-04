@@ -250,7 +250,6 @@ if ($conn->connect_error) {
           echo "<sdx-input ";
           echo "id=\"structid_".$table_struct[$element]['Name']."\"";
           echo "label = \"".$table_struct[$element]['Name']."\""; 
-          echo "placeholder=\"".$table_struct[$element]['Default']."\"";
             //check for larger text fields
             if ( $table_struct[$element]['StrLength']>= 50) {
               echo "type= \"textarea\"";
@@ -263,9 +262,15 @@ if ($conn->connect_error) {
             }
         echo "> ";
         echo "</sdx-input> ";        
-      }
-      
+      }      
     ?>
+    
+    <div id="tbl_struct" hidden >
+      <?php 
+        // add table information in hidden div
+        echo json_encode($table_struct); 
+      ?>
+    </div>
     
   </div>  
   <br>
@@ -890,6 +895,7 @@ function getColumnNames($table) {
     $output[$i]['Type'] = $row['DATA_TYPE'];
     $output[$i]['StrLength'] = $row['CHARACTER_MAXIMUM_LENGTH'];
     $output[$i]['Extra'] = $row['EXTRA'];
+    $output[$i]['Nullable'] = $row['IS_NULLABLE'];
     
     
     $i++;
@@ -1335,9 +1341,17 @@ function edit_save() {
     //console.log (keys[i]);
   }
   
-  var new_json_string = JSON.stringify(row_obj);
-  //console.log (new_json_string);
+   
+  const tbl_definitions = JSON.parse(document.getElementById("tbl_struct").innerHTML); // stored as JSON
   
+  
+  const full_obj = {tbl_defs: tbl_definitions, content: row_obj};
+  
+  var new_json_string = JSON.stringify(full_obj);
+
+  //console.log ("New string: ");
+  //console.log (new_json_string);
+
   const xhr = new XMLHttpRequest();
   xhr.open("POST", "update_db.php");
   xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -1348,7 +1362,10 @@ function edit_save() {
       console.log(this.response);
     }
   }
+  
   xhr.send(new_json_string);
+  //update page after data update
+  location.reload();
 
   
 }
