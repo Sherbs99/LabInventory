@@ -157,7 +157,19 @@ h1 {
 
 <title> Lab Inventory Dev</title>
 
-<body class="sdx" onload="UpdateActions()">
+<?php
+  //preparing for update only when desired; currently not used yet
+  $updatecontrols = strtolower($_REQUEST["controls"]);
+  //$updatecontrols = "YES";
+  
+  if ($updatecontrols != "no") {
+    $onload_body = "onload=\"UpdateActions()\"";
+  }
+  
+  
+?>
+
+<body class="sdx" <?php echo $onload_body?>>
 
 <div class="header">
   <img src="SC_Lifeform_GIF_large.gif"/> 
@@ -257,11 +269,19 @@ if ($conn->connect_error) {
             //check for non-changable fields, disable & hide            
             if ( $table_struct[$element]['Extra'] != '') {
               echo "disabled";
-              echo " ";
+              echo " value=\"New\"";
               echo "hidden";
+            }
+            $default_val = str_replace("'","",$table_struct[$element]['Default']);
+            if ($default_val == "NULL"){
+              $default_val = null;
+            }
+            if ( $default_val != null) {
+              echo " value=\"".$default_val."\"";
             }
         echo "> ";
         echo "</sdx-input> ";        
+        // echo "Default = ".$default_val;
       }      
     ?>
     
@@ -431,7 +451,9 @@ if ($conn->connect_error) {
           <th hidden> wancutter Port</th>
           <th hidden data-type="text">Monitoring</th>
           <th></th>
-          <th>edit</th>
+          <th>
+            <sdx-button theme="transparent" icon-name="icon-plus" icon-size="2" onclick="editRecord(0)"></sdx-button>
+          </th>
           <th hidden>row-json</th>
         </tr>
       </thead>
@@ -734,15 +756,25 @@ if ($result->num_rows > 0) {   // output data of each row
           ?>
         </td>
         <td> 
-          <?php $row_json = htmlspecialchars(json_encode($row));?>
-          <sdx-button 
-            theme="transparent" 
-            icon-name="icon-edit" 
-            icon-size="2"
-            onclick="editRecord(<?php echo $row["id"];?>)"
-          >
+          <div>
+            <?php $row_json = htmlspecialchars(json_encode($row));?>
+            <sdx-button 
+              theme="transparent" 
+              icon-name="icon-edit" 
+              icon-size="2"
+              onclick="editRecord(<?php echo $row["id"];?>)"
+            >
           
-          </sdx-button>
+            </sdx-button>
+            <sdx-button 
+              theme="transparent" 
+              icon-name="icon-bin" 
+              icon-size="2"
+              onclick="deleteRecord(<?php echo $row["id"];?>)"
+            >
+          
+            </sdx-button>
+          </div>  
         </td>
         <td
           id=<?php echo "tbl_rowjson".$row["id"];?>
@@ -1314,16 +1346,56 @@ function editRecord(row_json) {
   document.getElementById("editMask").hidden = false;
   document.getElementById("allcontent").hidden = true;
 
-  var json_string = document.getElementById("tbl_rowjson"+row_json).innerHTML.trim();
-  //document.getElementById("mask_text").innerHTML = "Json: " + json_string;
-  const row_obj = JSON.parse(json_string);
-  const keys = Object.keys(row_obj);
- 
-  for (let i = 0; i < keys.length; i++) {
-    //console.log ("Key: " + keys[i] + " Value: " + row_obj[keys[i]]);
-    //get values and decode any specially coded strings
-    document.getElementById("structid_"+keys[i]).value = htmlspecialchars_decode(row_obj[keys[i]]);   
+  if(row_json == 0) {
   }
+  else {
+    // load existing values if not new record
+    var json_string = document.getElementById("tbl_rowjson"+row_json).innerHTML.trim();
+    //document.getElementById("mask_text").innerHTML = "Json: " + json_string;
+    const row_obj = JSON.parse(json_string);
+    const keys = Object.keys(row_obj);
+ 
+    for (let i = 0; i < keys.length; i++) {
+      //console.log ("Key: " + keys[i] + " Value: " + row_obj[keys[i]]);
+      //get values and decode any specially coded strings
+      document.getElementById("structid_"+keys[i]).value = htmlspecialchars_decode(row_obj[keys[i]]);   
+    }
+  }
+}
+
+function deleteRecord(row_json) {
+
+  let rowNum = document.getElementById("structid_id").value;
+
+  let keys2 = [];
+  let row_obj2 = {};
+  
+  const action = "delete"; 
+  const row = row_json;
+  const tbl_definitions = JSON.parse(document.getElementById("tbl_struct").innerHTML); // stored as JSON
+  const full_obj = {action: action, tbl_defs: tbl_definitions, content: row_obj2, row: row};
+  
+  console.log("Full object");
+  console.log(full_obj);
+  
+  var new_json_string = JSON.stringify(full_obj);
+  
+  console.log("new_json_string:");
+  console.log(new_json_string);
+
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", "update_db.php");
+  xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+  
+  xhr.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      console.log(this.response);
+    }
+  }
+  
+  xhr.send(new_json_string);
+  location.reload(true);
+
 }
 
 function edit_save() {
@@ -1332,25 +1404,35 @@ function edit_save() {
   document.getElementById("allcontent").hidden = false;
   
   let rowNum = document.getElementById("structid_id").value;
-  var json_string = document.getElementById("tbl_rowjson"+rowNum).innerHTML.trim(); // get current json string
+  // var json_string = document.getElementById("tbl_rowjson"+rowNum).innerHTML.trim(); // get current json string
   //console.log (json_string);
-  const row_obj = JSON.parse(json_string); //convert to JS Object
-  const keys = Object.keys(row_obj); //extract Keys
-  for (let i = 0; i < keys.length; i++) {
-    row_obj[keys[i]] = document.getElementById("structid_"+keys[i]).value;
-    //console.log (keys[i]);
+  var json_string2 = document.getElementById("tbl_struct").innerHTML.trim();
+  console.log("String2: " +json_string2);
+   
+  const keys_obj = JSON.parse(json_string2);
+  
+  let keys2 = [];
+  let row_obj2 = {};
+  
+  for (let i = 0; i < keys_obj.length; i++) {
+    keys2[i] = keys_obj[i]["Name"];
+    row_obj2[keys_obj[i]["Name"]] = null;
   }
   
-   
+
+  for (let i = 0; i < keys2.length; i++) {
+    row_obj2[keys2[i]] = document.getElementById("structid_"+keys2[i]).value;
+    
+  }
+  
+  const action = "default"; 
   const tbl_definitions = JSON.parse(document.getElementById("tbl_struct").innerHTML); // stored as JSON
-  
-  
-  const full_obj = {tbl_defs: tbl_definitions, content: row_obj};
+  const full_obj = {action: action, tbl_defs: tbl_definitions, content: row_obj2};
   
   var new_json_string = JSON.stringify(full_obj);
-
-  //console.log ("New string: ");
-  //console.log (new_json_string);
+  
+  console.log("new_json_string:");
+  console.log(new_json_string);
 
   const xhr = new XMLHttpRequest();
   xhr.open("POST", "update_db.php");
@@ -1358,14 +1440,13 @@ function edit_save() {
   
   xhr.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
-      //console.log("OnReadyStateChange Successful, Response = " );
       console.log(this.response);
     }
   }
   
   xhr.send(new_json_string);
   //update page after data update
-  location.reload();
+  location.reload(true);
 
   
 }
