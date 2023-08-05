@@ -781,8 +781,7 @@ if ($result->num_rows > 0) {   // output data of each row
               </sdx-dialog-toggle>
             
               <sdx-dialog-content>
-                <p>Do you really want to delete <strong><?php echo $row["instance_name"];?></strong>?</p>
-            
+                <p>Do you really want to delete <strong><?php echo $row["instance_name"];?></strong>?</p>            
                 <sdx-button-group>
                   <sdx-button label="Yes, delete" onclick="deleteRecord(<?php echo $row["id"];?>)" ></sdx-button>
                   <sdx-button id="first-action-element99" label="No, keep it" onclick="document.getElementById('delItem').close()" theme="secondary"></sdx-button>
