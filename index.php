@@ -261,16 +261,16 @@ if ($conn->connect_error) {
       for ($element = 0; $element < $numElements; $element++){
           echo "<sdx-input ";
           echo "id=\"structid_".$table_struct[$element]['Name']."\"";
-          echo "label = \"".$table_struct[$element]['Name']."\""; 
+          echo "label = \"".$table_struct[$element]['Comment']."\""; 
             //check for larger text fields
             if ( $table_struct[$element]['StrLength']>= 50) {
               echo "type= \"textarea\"";
             }           
             //check for non-changable fields, disable & hide            
             if ( $table_struct[$element]['Extra'] != '') {
-              echo "disabled";
+              echo " disabled";
               echo " value=\"New\"";
-              echo "hidden";
+              echo " hidden";
             }
             $default_val = str_replace("'","",$table_struct[$element]['Default']);
             if ($default_val == "NULL"){
@@ -278,6 +278,10 @@ if ($conn->connect_error) {
             }
             if ( $default_val != null) {
               echo " value=\"".$default_val."\"";
+            }
+            if ($table_struct[$element]['Nullable'] != "YES") {
+              // echo "required ";
+              //echo "valid=false";
             }
         echo "> ";
         echo "</sdx-input> ";        
