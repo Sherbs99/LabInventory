@@ -452,7 +452,7 @@ if ($conn->connect_error) {
           <th hidden data-type="text">Monitoring</th>
           <th></th>
           <th>
-            <sdx-button theme="transparent" icon-name="icon-plus" icon-size="2" onclick="editRecord(0)"></sdx-button>
+            <sdx-button theme="transparent" icon-name="icon-plus" icon-size="2" onclick="editRecord(0)" label="add"></sdx-button>
           </th>
           <th hidden>row-json</th>
         </tr>
@@ -1375,13 +1375,13 @@ function deleteRecord(row_json) {
   const tbl_definitions = JSON.parse(document.getElementById("tbl_struct").innerHTML); // stored as JSON
   const full_obj = {action: action, tbl_defs: tbl_definitions, content: row_obj2, row: row};
   
-  console.log("Full object");
-  console.log(full_obj);
+  //console.log("Full object");
+  //console.log(full_obj);
   
   var new_json_string = JSON.stringify(full_obj);
   
-  console.log("new_json_string:");
-  console.log(new_json_string);
+  //console.log("new_json_string:");
+  //console.log(new_json_string);
 
   const xhr = new XMLHttpRequest();
   xhr.open("POST", "update_db.php");
@@ -1389,14 +1389,13 @@ function deleteRecord(row_json) {
   
   xhr.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
-      console.log(this.response);
+      //console.log(this.response);
     }
   }
   
   xhr.send(new_json_string);
-  location.reload(true);
-
-}
+  // reload page after delay
+  setTimeout(function() {location.reload(true);},200);}
 
 function edit_save() {
 
@@ -1407,7 +1406,7 @@ function edit_save() {
   // var json_string = document.getElementById("tbl_rowjson"+rowNum).innerHTML.trim(); // get current json string
   //console.log (json_string);
   var json_string2 = document.getElementById("tbl_struct").innerHTML.trim();
-  console.log("String2: " +json_string2);
+  //console.log("String2: " +json_string2);
    
   const keys_obj = JSON.parse(json_string2);
   
@@ -1431,8 +1430,8 @@ function edit_save() {
   
   var new_json_string = JSON.stringify(full_obj);
   
-  console.log("new_json_string:");
-  console.log(new_json_string);
+  //console.log("new_json_string:");
+  //console.log(new_json_string);
 
   const xhr = new XMLHttpRequest();
   xhr.open("POST", "update_db.php");
@@ -1440,16 +1439,14 @@ function edit_save() {
   
   xhr.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
-      console.log(this.response);
+      //console.log(this.response);
     }
   }
   
   xhr.send(new_json_string);
-  //update page after data update
-  location.reload(true);
+  // reload page after delay
+  setTimeout(function() {location.reload(true);},200);}
 
-  
-}
 
 function edit_cancel() {
   document.getElementById("editMask").hidden = true;
