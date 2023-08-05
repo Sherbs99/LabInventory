@@ -766,14 +766,30 @@ if ($result->num_rows > 0) {   // output data of each row
             >
           
             </sdx-button>
-            <sdx-button 
-              theme="transparent" 
-              icon-name="icon-bin" 
-              icon-size="2"
-              onclick="deleteRecord(<?php echo $row["id"];?>)"
+
+            <sdx-dialog
+              id="delItem"
+              label="Would you like to delete item?"
+              icon-name="icon-bin"
+              display-change-callback="
+                if (arguments[0] === 'open') document.querySelector('#first-action-element99').doFocus();
+                if (arguments[0] === 'closing') document.querySelector('#modal-opener').doFocus();
+              "
             >
-          
-            </sdx-button>
+              <sdx-dialog-toggle>
+                <sdx-button theme="transparent" icon-name="icon-bin" icon-size="2" id="modal-opener" ></sdx-button>
+              </sdx-dialog-toggle>
+            
+              <sdx-dialog-content>
+                <p>Do you really want to delete <strong><?php echo $row["instance_name"];?></strong>?</p>
+            
+                <sdx-button-group>
+                  <sdx-button label="Yes, delete" onclick="deleteRecord(<?php echo $row["id"];?>)" ></sdx-button>
+                  <sdx-button id="first-action-element99" label="No, keep it" onclick="document.getElementById('delItem').close()" theme="secondary"></sdx-button>
+                </sdx-button-group>
+              </sdx-dialog-content>
+            </sdx-dialog>
+
           </div>  
         </td>
         <td
@@ -1374,6 +1390,9 @@ function deleteRecord(row_json) {
   const row = row_json;
   const tbl_definitions = JSON.parse(document.getElementById("tbl_struct").innerHTML); // stored as JSON
   const full_obj = {action: action, tbl_defs: tbl_definitions, content: row_obj2, row: row};
+  
+  //close modal
+  //document.getElementById('delItem').close();
   
   //console.log("Full object");
   //console.log(full_obj);
