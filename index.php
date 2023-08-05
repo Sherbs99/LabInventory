@@ -261,7 +261,7 @@ if ($conn->connect_error) {
       for ($element = 0; $element < $numElements; $element++){
           echo "<sdx-input ";
           echo "id=\"structid_".$table_struct[$element]['Name']."\"";
-          echo "label = \"".$table_struct[$element]['Comment']."\""; 
+          echo "label = \"".$table_struct[$element]['Name']."\""; 
             //check for larger text fields
             if ( $table_struct[$element]['StrLength']>= 50) {
               echo "type= \"textarea\"";
@@ -390,7 +390,7 @@ if ($conn->connect_error) {
           <tr>
           <th hidden> Row_JSON</th>
 	  <th hidden> Lab ID </th>
-	  <th hidden> instance_name</th>
+	  <th hidden> instance name</th>
 	  <th> Lab</th>
           <th data-type="text"> Label</th>
           <th hidden> Bar Connection</th>
@@ -465,14 +465,47 @@ if ($conn->connect_error) {
 
 <?php
 
+// Define constants as variables with values
 
+$id = "id";
+
+$instance_name = "Label Name";
+$instance_name_sql = "`".$instance_name."`"; //used in sql statements with "`" wrapped around
+
+
+$lab_id = "Lab ID";
+
+$lab = "Lab Location";
+$lab_sql = "`".$lab."`";
+
+$col_comment = "Comment";
+$col_reservation = "Reservation";
+
+$bar_ip = "Powerbar IP";
+$bar_array = "Powerbar Array";
+$bar_branch = "Powerbar Branch";
+$bar_socket = "Powerbar Socket";
+
+$col_monitoring = "Monitoring";
+
+$col_ded_monitoring_link = "Dedicated Monitoring Link";
+
+$col_cut_ip = "Wancutter IP";
+$col_cut_port = "Wancutter Port";
+
+$col_vm = "VM";
+$col_mgmt_link = "Dedicated Management Link";
+
+$col_lan_ip = "LAN Switch IP";
+$col_lan_port = "LAN Switch Port";
+$col_lan_maker = "LAN Switch Maker";
 
 $sql_base = "SELECT * FROM pdu_plugs"." ";
-$sql_filter = "WHERE instance_name LIKE '%".$filter."%'";
+$sql_filter = "WHERE ".$instance_name_sql." LIKE '%".$filter."%'";
 //$sql_filter = "";
-$sql_order = "ORDER BY lab, instance_name";
+$sql_order = "ORDER BY ".$lab_sql .", ". $instance_name_sql;
 
-// $sql = "SELECT * FROM pdu_plugs ORDER BY instance_name";
+// $sql = "SELECT * FROM pdu_plugs ORDER BY ".$instance_name_sql;
 $sql = $sql_base.$sql_filter.$sql_order;
 $result = $conn->query($sql);
 
@@ -480,61 +513,61 @@ $result = $conn->query($sql);
 if ($result->num_rows > 0) {   // output data of each row
   while($row = $result->fetch_assoc()) { ?>
     <tr>
-      <td hidden><div id="<?php echo "tbl_json".$row["id"]; ?>"> 
+      <td hidden><div id="<?php echo "tbl_json".$row[$id]; ?>"> 
         <?php 
-          $jsonobj = array(id=>$row["id"],name=>$row["instance_name"], bar_ip=>$row["bar_ip"], bar_branch=>$row["bar_branch"], bar_array=>$row["bar_array"], bar_socket=>$row["bar_socket"]);
+          $jsonobj = array(id=>$row[$id],name=>$row[$instance_name], bar_ip=>$row[$bar_ip], bar_branch=>$row[$bar_branch], bar_array=>$row[$bar_array], bar_socket=>$row[$bar_socket]);
           echo json_encode($jsonobj); 
         ?>
       </div></td>
-      <td hidden id=<?php echo "tbl_labid".$row["id"]; ?>>
-        <?php echo $row["lab_ID"]; ?>
+      <td hidden id=<?php echo "tbl_labid".$row[$id]; ?>>
+        <?php echo $row[$lab_id]; ?>
       </td>
-      <td hidden id=<?php echo "tbl_inst_name".$row["id"]; ?>>
-        <?php echo $row["lab"]."-".$row["instance_name"]; ?>
+      <td hidden id=<?php echo "tbl_inst_name".$row[$id]; ?>>
+        <?php echo $row[$lab]."-".$row[$instance_name]; ?>
       </td>
       <td><div
-            id="<?php echo "tbl_lab".$row["id"]; ?>"
+            id="<?php echo "tbl_lab".$row[$id]; ?>"
           >  
-        <?php echo $row["lab"]; ?>
+        <?php echo $row[$lab]; ?>
       </td>  
       <td><div 
-            id="<?php echo "tbl_name".$row["id"]; ?>"
+            id="<?php echo "tbl_name".$row[$id]; ?>"
             title="
               <?php 
-                //echo $row["comment"]; 
-                if ($row["vm"] == 1) {
+                //echo $row[$col_comment]; 
+                if ($row[$col_vm] == 1) {
                   echo "Proxmox Lab Account required for opening management";
                 }
               ?>"
           > 
-          <?php echo $row["instance_name"]; ?>      
+          <?php echo $row[$instance_name]; ?>      
           <?php
 
-            if ($row["Monitoring"] == 1 || $row["ded_monitoring_link"] != null) {
+            if ($row[$col_monitoring] == 1 || $row[$col_ded_monitoring_link] != null) {
               echo "&emsp;"; // 4 spaces
               echo "<a href=";
-              if ($row["ded_monitoring_link"] == null) {
-                echo "https://monitoring.eclab.ch/zabbix/zabbix.php?action=host.view&filter_name=".$row["lab_ID"]."&filter_set=1";
+              if ($row[$col_ded_monitoring_link] == null) {
+                echo "https://monitoring.eclab.ch/zabbix/zabbix.php?action=host.view&filter_name=".$row[$lab_id]."&filter_set=1";
               } 
               else {
-                echo $row["ded_monitoring_link"];
+                echo $row[$col_ded_monitoring_link];
               }  
               echo " target=\"_blank\">".Monitor."</a>";
             }
             else {
-              //echo $row["instance_name"];
+              //echo $row[$instance_name];
             }
 
             //add VM Link if defined, Default is VM ID from proxmox
-            if ($row["vm"] == 1 || $row["mgmt_link"] != null) {
+            if ($row[$col_vm] == 1 || $row[$col_mgmt_link] != null) {
               echo "<a href=";
-              if ($row["mgmt_link"] == null) {
+              if ($row[$col_mgmt_link] == null) {
                 echo "https://lab.eclab.ch:8006/#v1:0:=qemu%2F";
-                echo $row["lab_ID"];
+                echo $row[$lab_id];
                 echo "01:4:::::8::";
               }
               else {
-                echo $row["mgmt_link"];
+                echo $row[$col_mgmt_link];
               }
               echo " target=\"_blank\">Manage</a>";
              }
@@ -546,25 +579,25 @@ if ($result->num_rows > 0) {   // output data of each row
               <sdx-icon 
                 <?php 
                   //hide icon when there is no comment
-                  if ($row["comment"] == null) {
+                  if ($row[$col_comment] == null) {
                     echo "hidden";
                   } 
                 ?> icon-name="icon-information-circle" sr-hint="Read more"><sdx-icon><             
             </sdx-menu-flyout-toggle>
             
             <sdx-menu-flyout-content style="width: 300px;">
-              <?php echo $row["comment"]; ?>
+              <?php echo $row[$col_comment]; ?>
             </sdx-menu-flyout-content>
           </sdx-menu-flyout>
         </div> 
       </td>
         
-      <td hidden> <?php echo $row["bar_ip"].":".$row["bar_array"]."/".$row["bar_branch"]."/".$row["bar_socket"]; ?> </td>
-      <td hidden> <?php // echo get_bar_description($row["bar_ip"],$row["bar_array"],$row["bar_branch"],$row["bar_socket"]); ?> </td>
+      <td hidden> <?php echo $row[$bar_ip].":".$row[$bar_array]."/".$row[$bar_branch]."/".$row[$bar_socket]; ?> </td>
+      <td hidden> <?php // echo get_bar_description($row[$bar_ip],$row[$bar_array],$row[$bar_branch],$row[$bar_socket]); ?> </td>
 
       <td hidden > 
-        <div class="toolbar toolbar--vertical" id="<?php echo "refresh_".$row["id"]; ?>"> 
-        <button class="toolbar__item item--show" aria-label="Share" onclick=snmp_getstate_all("<?php echo $row["id"]; ?>","<?php echo $row["bar_ip"]; ?>","<?php echo $row["bar_array"]; ?>","<?php echo $row["bar_branch"]; ?>","<?php echo $row["bar_socket"]; ?>")  >
+        <div class="toolbar toolbar--vertical" id="<?php echo "refresh_".$row[$id]; ?>"> 
+        <button class="toolbar__item item--show" aria-label="Share" onclick=snmp_getstate_all("<?php echo $row[$id]; ?>","<?php echo $row[$bar_ip]; ?>","<?php echo $row[$bar_array]; ?>","<?php echo $row[$bar_branch]; ?>","<?php echo $row[$bar_socket]; ?>")  >
           <i class="icon icon-synchronise" aria-hidden="true"></i>
           <span class="toolbar_label">Get Actions</span>
         </button>
@@ -573,76 +606,76 @@ if ($result->num_rows > 0) {   // output data of each row
       
       <td>
         <div 
-          title="<?php echo "Powerbar: ".$row["bar_ip"].", Port: ".$row["bar_array"]."/".$row["bar_branch"]."/".$row["bar_socket"];?>" 
+          title="<?php echo "Powerbar: ".$row[$bar_ip].", Port: ".$row[$bar_array]."/".$row[$bar_branch]."/".$row[$bar_socket];?>" 
           hidden class="switch" 
-          id="<?php echo "cl_lock-".$row["id"]; ?>"
+          id="<?php echo "cl_lock-".$row[$id]; ?>"
         >
           <input 
           	type="checkbox" 
-          	name=<?php echo "sw_lock".$row["id"]; ?> 
-          	id=<?php echo "sw_lock-".$row["id"]; ?> 
-          	<?php // echo check_status($row["bar_ip"], $row["bar_array"], $row["bar_branch"], $row["bar_socket"],"lock");?> 
-          	onclick=snmp_oper("<?php echo $row["id"]; ?>","<?php echo $row["bar_ip"]; ?>","<?php echo $row["bar_array"]; ?>","<?php echo $row["bar_branch"]; ?>","<?php echo $row["bar_socket"]; ?>","set","lock","<?php echo rawurlencode($row["instance_name"]); ?>")
+          	name=<?php echo "sw_lock".$row[$id]; ?> 
+          	id=<?php echo "sw_lock-".$row[$id]; ?> 
+          	<?php // echo check_status($row[$bar_ip], $row[$bar_array], $row[$bar_branch], $row[$bar_socket],"lock");?> 
+          	onclick=snmp_oper("<?php echo $row[$id]; ?>","<?php echo $row[$bar_ip]; ?>","<?php echo $row[$bar_array]; ?>","<?php echo $row[$bar_branch]; ?>","<?php echo $row[$bar_socket]; ?>","set","lock","<?php echo rawurlencode($row[$instance_name]); ?>")
           >
-          <label for="<?php echo "sw_lock-".$row["id"]; ?>"></label>
+          <label for="<?php echo "sw_lock-".$row[$id]; ?>"></label>
         </div>
       </td>
       <td>      
         <div 
           class="switch" 
           hidden 
-          id="<?php echo "cl_pwr-".$row["id"]; ?>"
-          title="<?php // echo "Switch Powerbar: ".$row["bar_ip"].", Port: ".$row["bar_array"]."/".$row["bar_branch"]."/".$row["bar_socket"];?>" 
+          id="<?php echo "cl_pwr-".$row[$id]; ?>"
+          title="<?php // echo "Switch Powerbar: ".$row[$bar_ip].", Port: ".$row[$bar_array]."/".$row[$bar_branch]."/".$row[$bar_socket];?>" 
           
         >
           <input 
             type="checkbox" 
-            name="<?php echo "sw_pwr".$row["id"]; ?>" 
-            id="<?php echo "sw_pwr-".$row["id"]; ?>"
-            <?php // echo check_status($row["bar_ip"], $row["bar_array"], $row["bar_branch"], $row["bar_socket"],"power");?>
-            <?php // echo check_status($row["bar_ip"], $row["bar_array"], $row["bar_branch"], $row["bar_socket"],"powerlock");?>
-            onclick=snmp_oper("<?php echo $row["id"]; ?>","<?php echo $row["bar_ip"]; ?>","<?php echo $row["bar_array"]; ?>","<?php echo $row["bar_branch"]; ?>","<?php echo $row["bar_socket"]; ?>","set","power","<?php echo rawurlencode($row["instance_name"]); ?>")  
+            name="<?php echo "sw_pwr".$row[$id]; ?>" 
+            id="<?php echo "sw_pwr-".$row[$id]; ?>"
+            <?php // echo check_status($row[$bar_ip], $row[$bar_array], $row[$bar_branch], $row[$bar_socket],"power");?>
+            <?php // echo check_status($row[$bar_ip], $row[$bar_array], $row[$bar_branch], $row[$bar_socket],"powerlock");?>
+            onclick=snmp_oper("<?php echo $row[$id]; ?>","<?php echo $row[$bar_ip]; ?>","<?php echo $row[$bar_array]; ?>","<?php echo $row[$bar_branch]; ?>","<?php echo $row[$bar_socket]; ?>","set","power","<?php echo rawurlencode($row[$instance_name]); ?>")  
           >
-          <label for="<?php echo "sw_pwr-".$row["id"]; ?>"></label>
+          <label for="<?php echo "sw_pwr-".$row[$id]; ?>"></label>
         </div>
       </td>
       <td>
         <div class="switch"
           <?php 
-             if (($row["cut_ip"] == "") || ($row["cut_port"]==0)) {echo "hidden";} //hide if no switch defined
+             if (($row[$col_cut_ip] == "") || ($row[$col_cut_port]==0)) {echo "hidden";} //hide if no switch defined
             ?>
-            title="Wancutter: <?php echo $row["cut_ip"].", Line ".$row["cut_port"]; ?>"
+            title="Wancutter: <?php echo $row[$col_cut_ip].", Line ".$row[$col_cut_port]; ?>"
         >
           <input 
             type="checkbox" 
             disabled
-            name="<?php echo "sw_wan".$row["id"]; ?>" 
-            id="<?php echo "sw_wan-".$row["id"]; ?>"
-            <?php echo get_wancutter_status($row["cut_ip"],$row["cut_port"]) ?>
-            onclick=set_wancutter("<?php echo $row["id"];?>","<?php echo $row["cut_ip"];?>","<?php echo $row["cut_port"]; ?>")
+            name="<?php echo "sw_wan".$row[$id]; ?>" 
+            id="<?php echo "sw_wan-".$row[$id]; ?>"
+            <?php echo get_wancutter_status($row[$col_cut_ip],$row[$col_cut_port]) ?>
+            onclick=set_wancutter("<?php echo $row[$id];?>","<?php echo $row[$col_cut_ip];?>","<?php echo $row[$col_cut_port]; ?>")
           >
-          <label for="<?php echo "sw_wan-".$row["id"]; ?>"></label>
+          <label for="<?php echo "sw_wan-".$row[$id]; ?>"></label>
         </div>
       </td>
       <td>
 
         <div class="switch"
-            title="<?php echo "Switch IP: ".$row["lan_ip"]."; Port: ".$row["lan_port"] ?>"
-            id="<?php echo "cl_snmp_lan-".$row["id"]; ?>"            
+            title="<?php echo "Switch IP: ".$row[$col_lan_ip]."; Port: ".$row[$col_lan_port] ?>"
+            id="<?php echo "cl_snmp_lan-".$row[$id]; ?>"            
             <?php
-              if($row["lan_ip"] == null) {
+              if($row[$col_lan_ip] == null) {
                 echo "hidden";
               }
             ?>
           >
           <input 
             type="checkbox"            
-            name="<?php echo "sw_lan".$row["id"]; ?>" 
-            id="<?php echo "sw_lan-".$row["id"]; ?>"
+            name="<?php echo "sw_lan".$row[$id]; ?>" 
+            id="<?php echo "sw_lan-".$row[$id]; ?>"
             <?php 
               // check whether port is active or not
-              if ($row["lan_ip"] != null) {
-                $portstate = get_lanport_status($row["lan_ip"],$row["lan_port"],$row["lan_maker"] );
+              if ($row[$col_lan_ip] != null) {
+                $portstate = get_lanport_status($row[$col_lan_ip],$row[$col_lan_port],$row[$col_lan_maker] );
                 if ($portstate == "port_on") { 
                   echo "checked";
                 }
@@ -653,12 +686,12 @@ if ($result->num_rows > 0) {   // output data of each row
             ?>
 
             <?php 
-              if($row["lan_ip"]!=null) {
+              if($row[$col_lan_ip]!=null) {
                 echo "onclick=snmp_lan(";
-                echo "\"".$row["id"]."\"".",";
-                echo "\"".$row["lan_ip"]."\"".",";
-                echo "\"".$row["lan_port"]."\"".",";
-                echo "\"".$row["lan_maker"]."\"".",";
+                echo "\"".$row[$id]."\"".",";
+                echo "\"".$row[$col_lan_ip]."\"".",";
+                echo "\"".$row[$col_lan_port]."\"".",";
+                echo "\"".$row[$col_lan_maker]."\"".",";
                 echo "\""."get"."\"".",";                
                 echo "\""."lan"."\"".",";                
                 echo "\""."1"."\"".")";
@@ -666,12 +699,12 @@ if ($result->num_rows > 0) {   // output data of each row
               }
             ?>
           >
-          <label for="<?php echo "sw_lan-".$row["id"]; ?>"></label>
+          <label for="<?php echo "sw_lan-".$row[$id]; ?>"></label>
                     
           <sdx-menu-flyout>
             <sdx-menu-flyout-toggle
                  <?php 
-                   //$portstate = get_lanport_status($row["lan_ip"],$row["lan_port"],$row["lan_maker"]); 
+                   //$portstate = get_lanport_status($row[$col_lan_ip],$row[$col_lan_port],$row[$col_lan_maker]); 
                    if ($portstate != "port_error") {
                      echo "hidden"; //everything ok, no message neeeded
                    }   
@@ -696,7 +729,7 @@ if ($result->num_rows > 0) {   // output data of each row
       </td>   
       <td>
         <?php 
-          $reservation = $row["reservation"];
+          $reservation = $row[$col_reservation];
           if ($reservation != "") {
             //echo $reservation; 
           echo "reserved";
@@ -705,7 +738,7 @@ if ($result->num_rows > 0) {   // output data of each row
           <sdx-menu-flyout>
             <sdx-menu-flyout-toggle
                  <?php 
-                   //$portstate = get_lanport_status($row["lan_ip"],$row["lan_port"],$row["lan_maker"]); 
+                   //$portstate = get_lanport_status($row[$col_lan_ip],$row[$col_lan_port],$row[$col_lan_maker]); 
                    if ($reservation == "") {
                      echo "hidden"; //no info to be displayed
                    }   
@@ -734,28 +767,28 @@ if ($result->num_rows > 0) {   // output data of each row
       <td hidden>
           <?php 
             //add a monitoring link if defined
-            if ($row["ded_monitoring_link"] != null){
+            if ($row[$col_ded_monitoring_link] != null){
               echo "<a href=";
-              echo $row["ded_monitoring_link"];
+              echo $row[$col_ded_monitoring_link];
               echo " target=\"_blank\">Link</a>";
             } 
             else {
-              if ($row["Monitoring"] == 1) {
+              if ($row[$col_monitoring] == 1) {
                 echo "<a href=";
-                echo "https://monitoring.eclab.ch/zabbix/zabbix.php?action=host.view&filter_name=veclab0".$row["lab_ID"]."&filter_set=1";
+                echo "https://monitoring.eclab.ch/zabbix/zabbix.php?action=host.view&filter_name=veclab0".$row[$lab_id]."&filter_set=1";
                 echo " target=\"_blank\">Link</a>";
               }
             }
           ?>
           <?php //echo "Link";?>
         </td>
-        <td><div hidden id="<?php echo "sw_label".$row["id"]; ?>"> 
+        <td><div hidden id="<?php echo "sw_label".$row[$id]; ?>"> 
           <?php 
-             if (($row["cut_ip"] == "") || ($row["cut_port"]==0)) {
+             if (($row[$col_cut_ip] == "") || ($row[$col_cut_port]==0)) {
              // do nothing
              } else {
-               echo $row["cut_ip"]; 
-               echo $row["cut_ip"]." Line: ".$row["cut_port"]; 
+               echo $row[$col_cut_ip]; 
+               echo $row[$col_cut_ip]." Line: ".$row[$col_cut_port]; 
              }
           ?>
         </td>
@@ -766,7 +799,7 @@ if ($result->num_rows > 0) {   // output data of each row
               theme="transparent" 
               icon-name="icon-edit" 
               icon-size="2"
-              onclick="editRecord(<?php echo $row["id"];?>)"
+              onclick="editRecord(<?php echo $row[$id];?>)"
             >
           
             </sdx-button>
@@ -785,10 +818,10 @@ if ($result->num_rows > 0) {   // output data of each row
               </sdx-dialog-toggle>
             
               <sdx-dialog-content>
-                <p>Do you really want to delete <strong><?php echo $row["instance_name"];?></strong>?</p>            
+                <p>Do you really want to delete <strong><?php echo $row[$instance_name];?></strong>?</p>            
                 
                 <sdx-button-group>
-                  <sdx-button label="Yes, delete" onclick="deleteRecord(<?php echo $row["id"];?>)" ></sdx-button>
+                  <sdx-button label="Yes, delete" onclick="deleteRecord(<?php echo $row[$id];?>)" ></sdx-button>
                   <sdx-button id="first-action-element99" label="No, keep it" onclick="document.getElementById('delItem').close()" theme="secondary"></sdx-button>
                 </sdx-button-group>
               </sdx-dialog-content>
@@ -797,7 +830,7 @@ if ($result->num_rows > 0) {   // output data of each row
           </div>  
         </td>
         <td
-          id=<?php echo "tbl_rowjson".$row["id"];?>
+          id=<?php echo "tbl_rowjson".$row[$id];?>
           hidden
         >
           <?php echo $row_json?>
@@ -1468,7 +1501,9 @@ function edit_save() {
   
   xhr.send(new_json_string);
   // reload page after delay
-  setTimeout(function() {location.reload(true);},200);}
+  setTimeout(function() {location.reload(true);},200);
+  
+  }
 
 
 function edit_cancel() {
