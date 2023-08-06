@@ -829,28 +829,26 @@ if ($result->num_rows > 0) {   // output data of each row
             </sdx-button>
 
             <sdx-dialog
-              id="delItem"
+              id="Modal_delItem"
               label="Would you like to delete item?"
               icon-name="icon-bin"
               display-change-callback="
-                if (arguments[0] === 'open') document.querySelector('#first-action-element99').doFocus();
+                if (arguments[0] === 'open') document.querySelector('#first-action-element').doFocus();
                 if (arguments[0] === 'closing') document.querySelector('#modal-opener').doFocus();
               "
             >
               <sdx-dialog-toggle>
-                <sdx-button theme="transparent" icon-name="icon-bin" icon-size="2" id="modal-opener" ></sdx-button>
+                <sdx-button id="modal-opener" theme="transparent" icon-name="icon-bin" icon-size="2"></sdx-button>
               </sdx-dialog-toggle>
             
               <sdx-dialog-content>
-                <p>Do you really want to delete <strong><?php echo $row[$instance_name];?></strong>?</p>            
-                
+                <p>Do you really want to delete <strong><?php echo $row[$instance_name];?></strong>?</p>                          
                 <sdx-button-group>
                   <sdx-button label="Yes, delete" onclick="deleteRecord(<?php echo $row[$id];?>)" ></sdx-button>
-                  <sdx-button id="first-action-element99" label="No, keep it" onclick="document.getElementById('delItem').close()" theme="secondary"></sdx-button>
+                  <sdx-button id="first-action-element" label="No, keep it" onclick="closeModal()" theme="secondary"></sdx-button>
                 </sdx-button-group>
               </sdx-dialog-content>
             </sdx-dialog>
-
           </div>  
         </td>
         <td
@@ -1430,7 +1428,7 @@ function editRecord(row_json) {
 
   if(row_json == 0) {
     // new record...
-    console.log("Output Test");
+    // console.log("Output Test");
   }
   else {
     // load existing values if not new record
@@ -1444,7 +1442,7 @@ function editRecord(row_json) {
       //get values and decode any specially coded strings
       field_value = htmlspecialchars_decode(row_obj[keys[i]]);
       document.getElementById("structid_"+keys[i]).value = field_value;
-      console.log("Required Param= " + document.getElementById("structid_"+keys[i]).required + "-");
+      // console.log("Required Param= " + document.getElementById("structid_"+keys[i]).required + "-");
       if (document.getElementById("structid_"+keys[i]).required == true) {
         if (document.getElementById("structid_"+keys[i]).value != null) {
           // delete document.getElementById("structid_"+keys[i]).valid; //disable red when there is some content
@@ -1453,6 +1451,13 @@ function editRecord(row_json) {
       }
     }
   }
+}
+
+function closeModal() {
+  // console.log("Closing MOdal...");
+  document.getElementById('Modal_delItem').close();
+  // reload page after delay
+  setTimeout(function() {location.reload(true);},200);  
 }
 
 function deleteRecord(row_json) {
@@ -1468,7 +1473,7 @@ function deleteRecord(row_json) {
   const full_obj = {action: action, tbl_defs: tbl_definitions, content: row_obj2, row: row};
   
   //close modal
-  document.getElementById('delItem').close();
+  document.getElementById('Modal_delItem').close();
   
   //console.log("Full object");
   //console.log(full_obj);
