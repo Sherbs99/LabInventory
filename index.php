@@ -1451,8 +1451,6 @@ function editRecord(row_json) {
           document.getElementById("structid_"+keys[i]).valid = true; //disable red when there is some content
         }
       }
-
-      
     }
   }
 }
