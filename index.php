@@ -1318,19 +1318,21 @@ function writelog (logstring) {
   var logstring_full = "";
   var userstring =  "User: " + username_loc+ "; ";
   
-  logstring_full = userstring + logstring;
   
-  // logstring_full = logstring + username_loc;
-  // logstring_full = username_loc + logstring;
-  var xmlhttp = new XMLHttpRequest(), state, command;
-  xmlhttp.onreadystatechange = function() {
+  logstring_full = (userstring + logstring);
+  
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", "snmpdemo.php");
+  xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+  
+  xhr.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
-      resp_json = this.responseText;
-    }       
+      // console.log("PHP Response: ");
+      // console.log(this.response);
+    }
   }
-  command = "snmpdemo.php?operation=writelog&logstring=" + logstring_full;
-  xmlhttp.open("GET", command, true);
-  xmlhttp.send();
+  xhr.send(logstring_full);  
+  
 }
 
 function writebar(urlstring) {
@@ -1460,7 +1462,7 @@ function deleteRecord(row_json) {
   obj_oldData = JSON.parse(current_string);
 
      
-  var obj_logstring = {DB_Action: operation, oldData: obj_oldData, newData: obj_newData};
+  var obj_logstring = {DB_Action: operation, newData: obj_newData, oldData: obj_oldData};
   logstring = JSON.stringify(obj_logstring);
   writelog(logstring);
  
@@ -1512,27 +1514,33 @@ function edit_save() {
   
   xhr.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
-      //console.log(this.response);
+      // console.log(this.response);
     }
   }
 
-  var titlestring = "DB Update: ";
   var obj_newData = row_obj2;
+  var json_newData = JSON.stringify(obj_newData);
+
 
   var operation = "New";
   var obj_oldData = {};
+  var json_oldData = "";
 
   
   // get current data if not new record
   if (rowNum != "New") {
     var operation = "Update";
     var current_string = document.getElementById("tbl_rowjson"+rowNum).innerHTML.trim(); // get current json string
-    obj_oldData = JSON.parse(current_string);
+    obj_oldData = JSON.parse(htmlspecialchars_decode(current_string))
+    json_oldData = htmlspecialchars_decode(current_string);
 
   }
     
-  var obj_logstring = {DB_Action: operation, oldData: obj_oldData, newData: obj_newData};
-  logstring = JSON.stringify(obj_logstring);
+  var obj_logstring = {DB_Action: operation, newData: obj_newData, oldData: obj_oldData};
+  
+ 
+  logstring = (JSON.stringify(obj_logstring));
+  
   writelog(logstring);
   
   xhr.send(new_json_string);

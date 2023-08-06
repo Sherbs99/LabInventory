@@ -1,17 +1,38 @@
 <?php
 // Variables
 
-//PDU has 3 Levels: array (1..<=4), branch (1..<=6), receptacle/socket (1..6)
+//POST used for writing Log
+  if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // echo "Post Request Received :-); String = ";
+    // echo $json_string;  
+    $logstring = file_get_contents('php://input'); //read Full Body
+    $operation = "writelog";
+    
+  } else 
+  { // get values for GET request
+    $targetip = $_REQUEST["ip"];
+    $item = strtolower($_REQUEST["item"]);
 
-$array = strtolower($_REQUEST["array"]);
-$branch = strtolower($_REQUEST["branch"]);
-$socket = strtolower($_REQUEST["socket"]);
-$valueInput = ($_REQUEST["value"]);
-$value = strtolower($valueInput);
-$maker = strtolower($_REQUEST["maker"]);
-$lanport = strtolower($_REQUEST["lanport"]);
+    //Default Key, you may use any SNMP Key if known
+    $key = strtolower($_REQUEST["key"]);
 
-$logstring = ($_REQUEST["logstring"]);
+    //Default operation = "get"
+    $operation = strtolower($_REQUEST["operation"]);
+    if ($operation ==""){$operation = "get";}  
+    //PDU has 3 Levels: array (1..<=4), branch (1..<=6), receptacle/socket (1..6)
+
+    $array = strtolower($_REQUEST["array"]);
+    $branch = strtolower($_REQUEST["branch"]);
+    $socket = strtolower($_REQUEST["socket"]);
+    $valueInput = ($_REQUEST["value"]);
+    $value = strtolower($valueInput);
+    $maker = strtolower($_REQUEST["maker"]);
+    $lanport = strtolower($_REQUEST["lanport"]);
+    $logstring = ($_REQUEST["logstring"]);     
+  }
+
+
+
 
 //community string
 $community="VertivRackPDU";
@@ -23,15 +44,7 @@ $community_netgear="eclab_2021";
 $type_str = "s"; // string
 $type_int = "i"; // Integer
 
-$targetip = $_REQUEST["ip"];
-$item = strtolower($_REQUEST["item"]);
 
-//Default Key, you may use any SNMP Key if known
-$key = strtolower($_REQUEST["key"]);
-
-//Default operation = "get"
-$operation = strtolower($_REQUEST["operation"]);
-if ($operation ==""){$operation = "get";}
 
 //filenames
 define('log_file' , 'data/log_inventory.log');
@@ -136,16 +149,20 @@ echo $ret_json;
 
 if ($operation=="writelog") {
 
-        //get all Data
+    //get all Data
     $currdate = date("d.m.Y H.i.s");
     //$stat_array = array("Time" => $currdate, "Logtext" => $logstring);
     $stat_array = array($currdate,$logstring);
-    $stat_data = json_encode($stat_array);
-    
+    //$stat_data = json_encode($stat_array);
+    $stat_data = $currdate.", ".$logstring;    
+
     //write log
     $log_filename = log_file;
     $logtext = $stat_data . PHP_EOL;
 	
+    //echo "LogString: ".$logtext;
+
+
     //adding log at beginning of file from https://stackoverflow.com/questions/1760525/need-to-write-at-beginning-of-file-with-php	
     //read content first or create file if necessary and close 
     $logfile = fopen($log_filename, "a+") or die("Unable to open file!"); //open in write mode, create if not existing
