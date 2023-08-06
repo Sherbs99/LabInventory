@@ -157,13 +157,11 @@ h1 {
     //$(window).scrollTop(0);
   //});
 </script>  
-    
-    
 
 </head>
 
 
-<title> Lab Inventory Dev</title>
+<title> Lab Inventory</title>
 
 <?php
   //preparing for update only when desired; currently not used yet
