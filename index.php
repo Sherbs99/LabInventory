@@ -90,6 +90,14 @@
   margin-right: 20px;
 }
 
+#input_errmsg_top{
+  color: red;
+}
+
+#input_errmsg_bottom{
+  color: red;
+}
+
 h1 {
   padding-top: 10px;
   padding-left: 20px;
@@ -252,26 +260,31 @@ if ($conn->connect_error) {
  
   <div id="mask_text">
   </div> 
-  <div id="tbl_cols"> 
+
+  <div id="tbl_cols">
+    <div id="input_errmsg_top"></div> 
+
     <?php 
-      // generate Input Mask with all DB Fields
-      $table_struct=(getColumnNames("pdu_plugs"));      
-      $numElements = count($table_struct);
+        // generate Input Mask with all DB Fields
+        $table_struct=(getColumnNames("pdu_plugs"));      
+        $numElements = count($table_struct);
       
-      for ($element = 0; $element < $numElements; $element++){
+        for ($element = 0; $element < $numElements; $element++){
+          
           echo "<sdx-input ";
           echo "id=\"structid_".$table_struct[$element]['Name']."\"";
-          echo "label = \"".$table_struct[$element]['Name']."\""; 
+          echo "label = \"".$table_struct[$element]['Comment']."\""; 
             //check for larger text fields
             if ( $table_struct[$element]['StrLength']>= 50) {
-              echo "type= \"textarea\"";
-            }           
-            //check for non-changable fields, disable & hide            
-            if ( $table_struct[$element]['Extra'] != '') {
-              echo " disabled";
-              echo " value=\"New\"";
-              echo " hidden";
+             echo "type= \"textarea\"";
             }
+            $type = $table_struct[$element]['Type'];
+            if ($type == "int"){
+              echo " type = \"number\" ";
+            } else {
+              echo " type = \"text\" ";
+            }
+
             $default_val = str_replace("'","",$table_struct[$element]['Default']);
             if ($default_val == "NULL"){
               $default_val = null;
@@ -279,17 +292,30 @@ if ($conn->connect_error) {
             if ( $default_val != null) {
               echo " value=\"".$default_val."\"";
             }
-            if ($table_struct[$element]['Nullable'] != "YES") {
-              // echo "required ";
-              //echo "valid=false";
+            //check for non-changable fields, disable & hide            
+            if ( $table_struct[$element]['Extra'] != '') {
+              echo " disabled";
+              echo " value=\"New\"";
+              echo " hidden";
+            } 
+            else {
+              //set required paramenter only if not hidden, will be shown otherwise despite the hidden attribute
+              if ($table_struct[$element]['Nullable'] != "YES") {
+                echo "required ";
+                echo "valid=false";
             }
+            }
+            echo " onkeyup=\"checkstruct()\"";
         echo "> ";
         echo "</sdx-input> ";        
-        // echo "Default = ".$default_val;
-      }      
-    ?>
+
+        } //FOR Loop
+          
+      ?>
+    <div id="input_errmsg_bottom"></div> 
+
     
-    <div id="tbl_struct" hidden >
+    <div id="tbl_struct" hidden>
       <?php 
         // add table information in hidden div
         echo json_encode($table_struct); 
@@ -1398,10 +1424,15 @@ function delcookie() {
 
 function editRecord(row_json) {
   
+  //check table first
+  checkstruct();
+
   document.getElementById("editMask").hidden = false;
   document.getElementById("allcontent").hidden = true;
 
   if(row_json == 0) {
+    // new record...
+    console.log("Output Test");
   }
   else {
     // load existing values if not new record
@@ -1413,7 +1444,17 @@ function editRecord(row_json) {
     for (let i = 0; i < keys.length; i++) {
       //console.log ("Key: " + keys[i] + " Value: " + row_obj[keys[i]]);
       //get values and decode any specially coded strings
-      document.getElementById("structid_"+keys[i]).value = htmlspecialchars_decode(row_obj[keys[i]]);   
+      field_value = htmlspecialchars_decode(row_obj[keys[i]]);
+      document.getElementById("structid_"+keys[i]).value = field_value;
+      console.log("Required Param= " + document.getElementById("structid_"+keys[i]).required + "-");
+      if (document.getElementById("structid_"+keys[i]).required == true) {
+        if (document.getElementById("structid_"+keys[i]).value != null) {
+          // delete document.getElementById("structid_"+keys[i]).valid; //disable red when there is some content
+          document.getElementById("structid_"+keys[i]).valid = true; //disable red when there is some content
+        }
+      }
+
+      
     }
   }
 }
@@ -1475,9 +1516,7 @@ function deleteRecord(row_json) {
 
 function edit_save() {
 
-  document.getElementById("editMask").hidden = true;
-  document.getElementById("allcontent").hidden = false;
-  
+ 
   let rowNum = document.getElementById("structid_id").value;
   
   var json_string2 = document.getElementById("tbl_struct").innerHTML.trim();
@@ -1514,7 +1553,33 @@ function edit_save() {
   
   xhr.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
-      // console.log(this.response);
+      
+      $retval = this.response;
+      //console.log($retval);
+      
+      if ($retval == 1) { //success
+        document.getElementById("editMask").hidden = true;
+        document.getElementById("allcontent").hidden = false;
+        // get current data if not new record
+        if (rowNum != "New") {
+          var operation = "Update";
+          var current_string = document.getElementById("tbl_rowjson"+rowNum).innerHTML.trim(); // get current json string
+          obj_oldData = JSON.parse(htmlspecialchars_decode(current_string))
+          json_oldData = htmlspecialchars_decode(current_string);
+
+        }
+        var obj_logstring = {DB_Action: operation, newData: obj_newData, oldData: obj_oldData};
+        logstring = (JSON.stringify(obj_logstring));
+        writelog(logstring);
+        // reload page after delay
+        setTimeout(function() {location.reload(true);},200);
+
+      }  
+      else {
+        var errmsg = "Data not saved, please complete all mandatory fields marked with <*>";
+        document.getElementById("input_errmsg_top").innerHTML = errmsg;
+        document.getElementById("input_errmsg_bottom").innerHTML = errmsg;
+      }
     }
   }
 
@@ -1527,33 +1592,39 @@ function edit_save() {
   var json_oldData = "";
 
   
-  // get current data if not new record
-  if (rowNum != "New") {
-    var operation = "Update";
-    var current_string = document.getElementById("tbl_rowjson"+rowNum).innerHTML.trim(); // get current json string
-    obj_oldData = JSON.parse(htmlspecialchars_decode(current_string))
-    json_oldData = htmlspecialchars_decode(current_string);
-
-  }
-    
-  var obj_logstring = {DB_Action: operation, newData: obj_newData, oldData: obj_oldData};
-  
- 
-  logstring = (JSON.stringify(obj_logstring));
-  
-  writelog(logstring);
   
   xhr.send(new_json_string);
-  // reload page after delay
-  setTimeout(function() {location.reload(true);},200);
   
   }
 
 
 function edit_cancel() {
   document.getElementById("editMask").hidden = true;
-  document.getElementById("allcontent").hidden = false;
 
+  document.getElementById("allcontent").hidden = false;
+  // reload page after delay
+  setTimeout(function() {location.reload(true);},200);
+
+}
+
+function checkstruct(){
+  var structure_json = document.getElementById("tbl_struct").innerHTML;
+  var structure_obj = JSON.parse(structure_json);
+   
+  //loop through all Elements
+  for (let i = 0; i < structure_obj.length; i++) {
+    var elementName = structure_obj[i].Name;
+    // console.log ("Element Name: " + elementName);
+    var structName = "structid_" + elementName;
+    if (structure_obj[i].Nullable == "NO")
+      {  
+        if (document.getElementById(structName).value != "") {
+          document.getElementById(structName).valid = "true";
+        } else {
+          document.getElementById(structName).valid = "false";      
+        }
+    }
+  } 
 }
 
 // Credits to https://charles-stover.medium.com/phps-htmlspecialchars-implemented-in-javascript-3da9ac36d481
@@ -1586,6 +1657,8 @@ htmlspecialchars.specialchars = [
   [ '"', '&quot;' ]
 ];
 
+
+
 // Create the function.
 var htmlspecialchars_decode = function(string) {
   
@@ -1616,6 +1689,8 @@ htmlspecialchars_decode.specialchars = [
   [ '<', '&lt;' ],
   [ '&', '&amp;' ]
 ];
+
+
 
 </script>
 
