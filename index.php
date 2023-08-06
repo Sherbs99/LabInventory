@@ -1429,7 +1429,7 @@ function deleteRecord(row_json) {
   const full_obj = {action: action, tbl_defs: tbl_definitions, content: row_obj2, row: row};
   
   //close modal
-  //document.getElementById('delItem').close();
+  document.getElementById('delItem').close();
   
   //console.log("Full object");
   //console.log(full_obj);
@@ -1449,9 +1449,27 @@ function deleteRecord(row_json) {
     }
   }
   
+  // Update Log
+  var obj_newData = {};
+
+  var operation = "Delete";
+  var obj_oldData = {};
+
+  // get current data
+  var current_string = document.getElementById("tbl_rowjson"+row_json).innerHTML.trim(); // get current json string
+  obj_oldData = JSON.parse(current_string);
+
+     
+  var obj_logstring = {DB_Action: operation, oldData: obj_oldData, newData: obj_newData};
+  logstring = JSON.stringify(obj_logstring);
+  writelog(logstring);
+ 
+  
   xhr.send(new_json_string);
   // reload page after delay
-  setTimeout(function() {location.reload(true);},200);}
+  setTimeout(function() {location.reload(true);},200);
+  
+  }
 
 function edit_save() {
 
@@ -1459,8 +1477,7 @@ function edit_save() {
   document.getElementById("allcontent").hidden = false;
   
   let rowNum = document.getElementById("structid_id").value;
-  // var json_string = document.getElementById("tbl_rowjson"+rowNum).innerHTML.trim(); // get current json string
-  //console.log (json_string);
+  
   var json_string2 = document.getElementById("tbl_struct").innerHTML.trim();
   //console.log("String2: " +json_string2);
    
@@ -1498,6 +1515,25 @@ function edit_save() {
       //console.log(this.response);
     }
   }
+
+  var titlestring = "DB Update: ";
+  var obj_newData = row_obj2;
+
+  var operation = "New";
+  var obj_oldData = {};
+
+  
+  // get current data if not new record
+  if (rowNum != "New") {
+    var operation = "Update";
+    var current_string = document.getElementById("tbl_rowjson"+rowNum).innerHTML.trim(); // get current json string
+    obj_oldData = JSON.parse(current_string);
+
+  }
+    
+  var obj_logstring = {DB_Action: operation, oldData: obj_oldData, newData: obj_newData};
+  logstring = JSON.stringify(obj_logstring);
+  writelog(logstring);
   
   xhr.send(new_json_string);
   // reload page after delay
