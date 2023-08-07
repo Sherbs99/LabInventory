@@ -829,23 +829,23 @@ if ($result->num_rows > 0) {   // output data of each row
             </sdx-button>
 
             <sdx-dialog
-              id="Modal_delItem"
+              id="Modal_delItem<?php echo $row[$id]?>"
               label="Would you like to delete item?"
               icon-name="icon-bin"
               display-change-callback="
-                if (arguments[0] === 'open') document.querySelector('#first-action-element').doFocus();
-                if (arguments[0] === 'closing') document.querySelector('#modal-opener').doFocus();
+                if (arguments[0] === 'open') document.querySelector('#first-action-element<?php echo $row[$id];?>').doFocus();
+                if (arguments[0] === 'closing') document.querySelector('#modal-opener<?php echo $row[$id];?>').doFocus();
               "
             >
               <sdx-dialog-toggle>
-                <sdx-button id="modal-opener" theme="transparent" icon-name="icon-bin" icon-size="2"></sdx-button>
+                <sdx-button id="modal-opener<?php echo $row[$id];?>" theme="transparent" icon-name="icon-bin" icon-size="2"></sdx-button>
               </sdx-dialog-toggle>
             
               <sdx-dialog-content>
                 <p>Do you really want to delete <strong><?php echo $row[$instance_name];?></strong>?</p>                          
                 <sdx-button-group>
                   <sdx-button label="Yes, delete" onclick="deleteRecord(<?php echo $row[$id];?>)" ></sdx-button>
-                  <sdx-button id="first-action-element" label="No, keep it" onclick="closeModal()" theme="secondary"></sdx-button>
+                  <sdx-button id="first-action-element<?php echo $row[$id];?>" label="No, keep it" onclick="closeModal(<?php echo $row[$id];?>)" theme="secondary"></sdx-button>
                 </sdx-button-group>
               </sdx-dialog-content>
             </sdx-dialog>
@@ -1418,7 +1418,7 @@ function delcookie() {
   document.getElementById("usermgmt").hidden = true;
 }
 
-function editRecord(row_json) {
+function editRecord(row_id) {
   
   //check table first
   checkstruct();
@@ -1426,13 +1426,13 @@ function editRecord(row_json) {
   document.getElementById("editMask").hidden = false;
   document.getElementById("allcontent").hidden = true;
 
-  if(row_json == 0) {
+  if(row_id == 0) {
     // new record...
     // console.log("Output Test");
   }
   else {
     // load existing values if not new record
-    var json_string = document.getElementById("tbl_rowjson"+row_json).innerHTML.trim();
+    var json_string = document.getElementById("tbl_rowjson"+id).innerHTML.trim();
     //document.getElementById("mask_text").innerHTML = "Json: " + json_string;
     const row_obj = JSON.parse(json_string);
     const keys = Object.keys(row_obj);
@@ -1453,14 +1453,18 @@ function editRecord(row_json) {
   }
 }
 
-function closeModal() {
+function closeModal(row_id) {
   // console.log("Closing MOdal...");
-  document.getElementById('Modal_delItem').close();
+  
+  let modalitemid = "Modal_delItem" + row_id;
+  console.log ("Closing " + modalitemid);
+
+  document.getElementById(modalitemid).close();
   // reload page after delay
-  setTimeout(function() {location.reload(true);},200);  
+  // setTimeout(function() {location.reload(true);},200);  
 }
 
-function deleteRecord(row_json) {
+function deleteRecord(row_id) {
 
   let rowNum = document.getElementById("structid_id").value;
 
@@ -1468,12 +1472,12 @@ function deleteRecord(row_json) {
   let row_obj2 = {};
   
   const action = "delete"; 
-  const row = row_json;
+  const row = row_id;
   const tbl_definitions = JSON.parse(document.getElementById("tbl_struct").innerHTML); // stored as JSON
   const full_obj = {action: action, tbl_defs: tbl_definitions, content: row_obj2, row: row};
   
   //close modal
-  document.getElementById('Modal_delItem').close();
+  document.getElementById('Modal_delItem' + row_id).close();
   
   //console.log("Full object");
   //console.log(full_obj);
@@ -1500,7 +1504,7 @@ function deleteRecord(row_json) {
   var obj_oldData = {};
 
   // get current data
-  var current_string = document.getElementById("tbl_rowjson"+row_json).innerHTML.trim(); // get current json string
+  var current_string = document.getElementById("tbl_rowjson"+row_id).innerHTML.trim(); // get current json string
   obj_oldData = JSON.parse(current_string);
 
      
