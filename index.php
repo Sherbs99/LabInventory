@@ -1432,7 +1432,7 @@ function editRecord(row_id) {
   }
   else {
     // load existing values if not new record
-    var json_string = document.getElementById("tbl_rowjson"+id).innerHTML.trim();
+    var json_string = document.getElementById("tbl_rowjson"+row_id).innerHTML.trim();
     //document.getElementById("mask_text").innerHTML = "Json: " + json_string;
     const row_obj = JSON.parse(json_string);
     const keys = Object.keys(row_obj);
