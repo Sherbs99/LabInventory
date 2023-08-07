@@ -79,6 +79,11 @@
 
 }
 
+#btn_grp_maskedit{
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
 #txt_username{
   margin-left: 20px;
   margin-right: 20px;
