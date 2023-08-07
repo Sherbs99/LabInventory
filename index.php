@@ -1607,7 +1607,7 @@ function edit_cancel() {
   document.getElementById("editMask").hidden = true;
 
   document.getElementById("allcontent").hidden = false;
-  // reload page after delay
+  // reload page after delay required otherwise values in table are still stored from editing recored; New Record will cause false Default values
   setTimeout(function() {location.reload(true);},200);
 
 }
