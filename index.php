@@ -40,6 +40,9 @@
   margin: 20px;
 }
 
+#toolbar01 {
+  margin-left: 10px;}
+
 #infotext {
   display: inline-block;
 }
@@ -884,7 +887,7 @@ $conn->close();
 </div>
 
 
-  <div class="toolbar" id="toolbar01">
+  <div id="toolbar01">
     <button class="toolbar__item item--show" aria-label="Log" onClick="javascript:window.open('data/log_inventory.log', '_blank');">
       <i class="icon icon-document" aria-hidden="true"></i>
       <span class="toolbar__label">Log</span>
