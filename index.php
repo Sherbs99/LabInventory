@@ -371,12 +371,12 @@ if ($conn->connect_error) {
 
 <div id = "usermgmt">
   <div id="welcome_message" style="vertical-align: bottom; margin-right: 0px;"> </div>
-  
+
   <div id="clr_usr_cookie" style="margin-left: 20px;">
-    <sdx-button theme="transparent" icon-name="" icon-size="1" label="Clear user cookie" onclick="delcookie()" style="text-top;"></sdx-button>
+    <sdx-button theme="transparent" icon-name="" icon-size="1" label="Clear user" onclick="delcookie()"></sdx-button>
       <sdx-menu-flyout>
         <sdx-menu-flyout-toggle>
-          <sdx-icon icon-name="icon-information-circle" sr-hint="Read more"><sdx-icon>             
+          <sdx-icon icon-name="icon-information-circle" sr-hint="Read more"><sdx-icon><             
         </sdx-menu-flyout-toggle>
         <sdx-menu-flyout-content style="width: 300px;">
           Deletes username stored as cookie. You will need to provide your name again next time you start using this page
@@ -841,7 +841,7 @@ if ($result->num_rows > 0) {   // output data of each row
                 if (arguments[0] === 'open') document.querySelector('#first-action-element<?php echo $row[$id];?>').doFocus();
                 if (arguments[0] === 'closing') document.querySelector('#modal-opener<?php echo $row[$id];?>').doFocus();
               "
-              onkeyup="
+              onkeyup="deleteRecord(<?php echo $row[$id];?>)"
                 
             >
               <sdx-dialog-toggle>
