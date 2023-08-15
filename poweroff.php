@@ -8,6 +8,10 @@ $username = "webuser";
 $password = "DB_Web_Access&55";
 $dbname = "DemoLabInventory";
 
+$bar_ip = "Powerbar IP";
+$bar_array = "Powerbar Array";
+$bar_branch = "Powerbar Branch";
+$bar_socket = "Powerbar Socket";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -20,9 +24,11 @@ if ($conn->connect_error) {
 //$filter="109-InOneKMUOffice";
 $filter="";
 $sql_base = "SELECT * FROM pdu_plugs"." ";
-$sql_filter = "WHERE instance_name LIKE '%".$filter."%'";
-//$sql_filter = "";
-$sql_order = "ORDER BY lab, instance_name";
+// $sql_filter = "WHERE instance_name LIKE '%".$filter."%'";
+$sql_filter = "";
+
+//$sql_order = "ORDER BY lab, instance_name";
+$sql_order = "";
 
 // $sql = "SELECT * FROM pdu_plugs ORDER BY instance_name";
 $sql = $sql_base.$sql_filter.$sql_order;
@@ -30,12 +36,11 @@ $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {   // output data of each row
   while($row = $result->fetch_assoc()) { 
-    if ($row["bar_ip"] != "") {
-      $lock = check_status($row["bar_ip"], $row["bar_array"], $row["bar_branch"], $row["bar_socket"],"lock");
+    if ($row["Powerbar Array"] != "") {
+      $lock = check_status($row[$bar_ip], $row[$bar_array], $row[$bar_branch], $row[$bar_socket],"lock");
       if ($lock != "checked") {
-        $params="http://localhost/snmpdemo.php?operation=set&ip=".$row["bar_ip"]."&array=".$row["bar_array"]."&branch=".$row["bar_branch"]."&socket=".$row["bar_socket"]."&item=power&value=0";
+        $params="http://localhost/snmpdemo.php?operation=set&ip=".$row[$bar_ip]."&array=".$row[$bar_array]."&branch=".$row[$bar_branch]."&socket=".$row[$bar_socket]."&item=power&value=0";
         $resp_json = file_get_contents($params);
-        echo "Params: ".$params."; <br>";
         //echo $row["bar_ip"]."/".$row["bar_array"]."/".$row["bar_branch"]."/".$row["bar_socket"];
         //echo "Turned off... ";    
       }  
@@ -74,5 +79,6 @@ $conn->close();
     return $ret_txt;
   } //check_status
 
-echo "unlocked Power Off Complete<br>";
+echo "unlocked Power Off Complete";
+echo PHP_EOL;
 ?>
