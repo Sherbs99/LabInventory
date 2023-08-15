@@ -535,7 +535,10 @@ $col_lan_port = "LAN Switch Port";
 $col_lan_maker = "LAN Switch Maker";
 
 $sql_base = "SELECT * FROM pdu_plugs"." ";
-$sql_filter = "WHERE ".$instance_name_sql." LIKE '%".$filter."%'";
+
+//$sql_filter = "WHERE ".$instance_name_sql." LIKE \"%".$filter."%\""." OR `".$col_prod_id."` LIKE \"%".$filter."%\"" ;
+$sql_filter = "WHERE ".$instance_name_sql." LIKE \"%".$filter."%\"" ;
+
 //$sql_filter = "";
 $sql_order = "ORDER BY ".$lab_sql .", ". $instance_name_sql;
 
@@ -557,7 +560,7 @@ if ($result->num_rows > 0) {   // output data of each row
         <?php echo $row[$lab_id]; ?>
       </td>
       <td hidden id=<?php echo "tbl_inst_name".$row[$id]; ?>>
-        <?php echo $row[$lab]."-".$row[$instance_name]; ?>
+        <?php echo $row[$lab]."-".$row[$instance_name]."-".$row[$col_prod_id]; ?>
       </td>
       <td><div
             id="<?php echo "tbl_lab".$row[$id]; ?>"
