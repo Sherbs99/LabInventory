@@ -40,7 +40,7 @@
   margin: 20px;
 }
 
-#toolbar01 {
+#loginfo {
   margin-left: 10px;}
 
 #infotext {
@@ -424,6 +424,7 @@ if ($conn->connect_error) {
 	  <th hidden> Lab ID </th>
 	  <th hidden> instance name</th>
 	  <th> Lab</th>
+	  <th> Product ID</th>
           <th data-type="text"> Label</th>
           <th hidden> Bar Connection</th>
           <th hidden> Bar Description</th>
@@ -506,6 +507,7 @@ $instance_name_sql = "`".$instance_name."`"; //used in sql statements with "`" w
 
 
 $lab_id = "Lab ID";
+$col_prod_id = "Produkt-Id";
 
 $lab = "Lab Location";
 $lab_sql = "`".$lab."`";
@@ -561,7 +563,12 @@ if ($result->num_rows > 0) {   // output data of each row
             id="<?php echo "tbl_lab".$row[$id]; ?>"
           >  
         <?php echo $row[$lab]; ?>
-      </td>  
+      </td>
+      <td><div
+            id="<?php echo "tbl_prod_id".$row[$id]; ?>"
+          >  
+        <?php echo $row[$col_prod_id]; ?>
+      </td>      
       <td><div 
             id="<?php echo "tbl_name".$row[$id]; ?>"
             title="
@@ -887,7 +894,7 @@ $conn->close();
 </div>
 
 
-  <div id="toolbar01">
+  <div id="loginfo">
     <button class="toolbar__item item--show" aria-label="Log" onClick="javascript:window.open('data/log_inventory.log', '_blank');">
       <i class="icon icon-document" aria-hidden="true"></i>
       <span class="toolbar__label">Log</span>
