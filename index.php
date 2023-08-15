@@ -401,7 +401,7 @@ if ($conn->connect_error) {
 
 
 
-  <sdx-input <?php if ($filter!=null) {echo "hidden";}?> label="Filter in Label" type="text" id="SearchTable" onkeyup="tableFilter()" placeholder="Set filter..." 
+  <sdx-input <?php if ($filter!=null) {echo "hidden";}?> label="Filter in Label / Product ID" type="text" id="SearchTable" onkeyup="tableFilter()" placeholder="Set filter..." 
     <?php 
       if ($filter != ""){
         echo "value=\"".$filter."\"";
