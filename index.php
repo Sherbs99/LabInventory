@@ -25,17 +25,14 @@
 #SearchTable {
   background-position: 10px 10px;
   background-repeat: no-repeat;
-  width: 95%;
+  width: 100%;
   margin: 20px;
 }
 
-#mainfilter {
-  background-position: 10px 10px;
-  background-repeat: no-repeat;
-  width: 95%;
-  margin: 20px;
-}
+#div_SearchTable {
 
+  margin-right: 40px;
+}
 #showbutton {
   margin: 20px;
 }
@@ -400,14 +397,15 @@ if ($conn->connect_error) {
 </div>
 
 
-
-  <sdx-input <?php if ($filter!=null) {echo "hidden";}?> label="Filter in Label / Product ID" type="text" id="SearchTable" onkeyup="tableFilter()" placeholder="Set filter..." 
-    <?php 
-      if ($filter != ""){
-        echo "value=\"".$filter."\"";
-      }  
-    ?>
-  ></sdx-input>
+  <div id="div_SearchTable">
+    <sdx-input <?php if ($filter!=null) {echo "hidden";}?> label="Filter in Label / Product ID" type="text" id="SearchTable" onkeyup="tableFilter()" placeholder="Set filter..." 
+      <?php 
+        if ($filter != ""){
+          echo "value=\"".$filter."\"";
+        }  
+      ?>
+    ></sdx-input>
+  </div>
 
 
 
