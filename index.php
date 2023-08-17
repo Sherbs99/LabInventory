@@ -274,9 +274,19 @@ if ($conn->connect_error) {
       
         for ($element = 0; $element < $numElements; $element++){
           
+          //Calculate field length; Is number in brackets in field COLUMN_TYPE, e.g. varchar(30) --> 30, int (11) --> 11
+          $field_length_str = $table_struct[$element]['ColType'];
+          $leftpos = strpos($field_length_str,"(");
+          $rightpos = strpos($field_length_str, ")");
+          $lenstr = substr($field_length_str, $leftpos + 1, $rightpos - $leftpos - 1);
           echo "<sdx-input ";
           echo "id=\"structid_".$table_struct[$element]['Name']."\"";
+          // echo "label = \"".$table_struct[$element]['Comment']." Length: " .$field_length_str."/".$leftpos."/".$rightpos."/".$lenstr."\""; 
           echo "label = \"".$table_struct[$element]['Comment']."\""; 
+          
+          //Define max length for intput validation
+          echo "maxlength = " . $lenstr . " ";
+          
             //check for larger text fields
             if ( $table_struct[$element]['StrLength']>= 50) {
              echo "type= \"textarea\"";
