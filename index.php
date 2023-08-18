@@ -1075,7 +1075,7 @@ function tableFilter() {
         }
       }
     }
-    document.getElementById("numitems").innerHTML = numshown + " of " + (i+1) + " items";   
+    document.getElementById("numitems").innerHTML = numshown + " of " + (i-1) + " Items";   
   }
 }
 function snmp_getstate_all(id, bar_ip, bar_array, bar_branch, bar_socket, Element, numElements) {
