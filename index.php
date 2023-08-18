@@ -411,7 +411,7 @@ if ($conn->connect_error) {
     <sdx-input <?php if ($filter!=null) {echo "hidden";}?> label="Filter in Label / Product ID" type="text" id="SearchTable" onkeyup="tableFilter()" placeholder="Set filter..." 
       <?php 
         if ($filter != ""){
-          echo "value=\"".$filter."\"";
+          //echo "value=\"".$filter."\"";
         }  
       ?>
     ></sdx-input>
@@ -1062,17 +1062,20 @@ function tableFilter() {
     tr = table.getElementsByTagName("tr");
 
     // Loop through all table rows, and hide those who don't match the search query
+    var numshown = 0;
     for (i = 0; i < tr.length; i++) {
       td = tr[i].getElementsByTagName("td")[2];
       if (td) {
         txtValue = td.textContent || td.innerText;
         if (txtValue.toUpperCase().indexOf(filter) > -1) {
           tr[i].style.display = "";
+          numshown++;
         } else {
           tr[i].style.display = "none";
         }
       }
-    }   
+    }
+    document.getElementById("numitems").innerHTML = numshown + " of " + (i+1) + " items";   
   }
 }
 function snmp_getstate_all(id, bar_ip, bar_array, bar_branch, bar_socket, Element, numElements) {
@@ -1294,7 +1297,7 @@ function UpdateActions() {
   else {
     itemtext = "Items";
   }
-  document.getElementById("numitems").innerHTML = (numElements-1) + " " + itemtext; // hide if no elements at all
+  document.getElementById("numitems").innerHTML = (numElements-1) + " " + itemtext; // Update Text
   
   if (numElements <= 1) { //Title Row only - Hide progress bar if no data available
      document.getElementById("bar02").hidden = true; // hide if no elements at all
