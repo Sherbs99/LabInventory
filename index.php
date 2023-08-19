@@ -40,18 +40,19 @@
 #loginfo {
   margin-left: 10px;}
 
-#infotext {
+#numitems {
   display: inline-block;
+  margin-right: 20px;
 }
 
-#numitems {
-  margin-left: 20px;
-  margin-right: 20px;
+#infotext {
   display: inline-block;
 }
 
 #itemnum {
   margin-top: 7px;
+  margin-left: 20px;
+  margin-right: 10px;
   display: inline-block;
 }
 
@@ -396,13 +397,14 @@ if ($conn->connect_error) {
 </div>
 
 <div id="itemnum">
-  <div id="numitems">
-    <?php
-      $filter = strtolower($_REQUEST["filter"]);
-      $filter = ($_REQUEST["filter"]);
-      $filtertext = "Showing items with " . "<span style=\"color: #086adb\">*". $filter . "*</span>" . " only. <a href=\"index.php\">Show all</a>";
-    ?>
-  </div>
+  <div id="numitems"></div>
+  
+  <?php
+    $filter = strtolower($_REQUEST["filter"]);
+    $filter = ($_REQUEST["filter"]);
+    $filtertext = "Showing items with " . "<span style=\"color: #086adb\">*". $filter . "*</span>" . " only. <a href=\"index.php\">Show all</a>";
+  ?>
+  
   <div id="infotext" <?php if ($filter==null) {echo "hidden";}?>> <?php echo $filtertext; ?> </div>
 </div>
 
@@ -1064,7 +1066,7 @@ function tableFilter() {
     // Loop through all table rows, and hide those who don't match the search query
     var numshown = 0;
     for (i = 0; i < tr.length; i++) {
-      td = tr[i].getElementsByTagName("td")[2];
+      td = tr[i].getElementsByTagName("td")[2]; //Search column 2 (0..n)
       if (td) {
         txtValue = td.textContent || td.innerText;
         if (txtValue.toUpperCase().indexOf(filter) > -1) {
@@ -1075,7 +1077,19 @@ function tableFilter() {
         }
       }
     }
-    document.getElementById("numitems").innerHTML = numshown + " of " + (i-1) + " Items";   
+
+    // Update amount of lines shown; Show one number only if all is shown
+    var numtext = ""
+    
+    if (numshown == i-1) {
+      numtext = i-1 + " Item";
+    } else {
+      numtext = numshown + " of " + (i-1) + " Item";
+    }
+    //add "s" if not 1 Item shown
+    if (i-1 != 1) {numtext = numtext + "s";}
+    
+    document.getElementById("numitems").innerHTML = numtext;   
   }
 }
 function snmp_getstate_all(id, bar_ip, bar_array, bar_branch, bar_socket, Element, numElements) {
